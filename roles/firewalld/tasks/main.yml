@@ -7,14 +7,6 @@
     permanent: yes
     state: enabled
 
-# - name: Allow redis traffic
-#   firewalld:
-#     port: 6379/tcp
-#     # source: 172.26.184.0/24
-#     interface: eth2
-#     state: enabled
-#     permanent: yes
-
 - name: Allow redis traffic
   firewalld:
     zone: trusted

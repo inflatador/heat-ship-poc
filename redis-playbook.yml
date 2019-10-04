@@ -1,0 +1,10 @@
+- name: Run redis tasks
+  hosts: clus
+  become: yes
+  user: root
+  gather_facts: yes
+
+  roles:
+    - firewalld
+    - cluster
+    - redis

@@ -13,3 +13,10 @@
     service: redis
     state: enabled
     permanent: yes
+
+- name: Allow cluster traffic
+  firewalld:
+    zone: trusted
+    service: high-availability
+    state: enabled
+    permanent: yes

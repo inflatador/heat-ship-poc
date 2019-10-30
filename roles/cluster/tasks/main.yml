@@ -34,4 +34,4 @@
     name: "hacluster"
     password: "5BB3E5A8-9F52-4FD2-AC05-CA04D8BE2764"
     update_password: on_create
-    # shell: "/bin/false"
+    shell: "/bin/false"

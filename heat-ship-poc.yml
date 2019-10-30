@@ -33,7 +33,7 @@ parameters:
   nodeName:
     type: string
     label: 'Prefix for Cluster Instances'
-    default: 'clusterInstance'
+    default: 'clusNode'
     constraints:
       - allowed_pattern: '^[\w-]+$'
         description: "Server name may only have alphanumeric characters, underscores, and dashes"
@@ -67,7 +67,7 @@ parameters:
     type: string
     label: 'Cloud Network Name'
     description: Name of Cloud Network
-    default: 'clusNet'
+    default: 'clusNet00'
     constraints:
       - allowed_pattern: '^[\w-]+$'
         description: "Network name may only have alphanumeric characters, underscores, and dashes"
@@ -156,9 +156,12 @@ resources:
 #Begin Server instance resources
 
   nodePass:
-      type: OS::Heat::RandomString
+    type: OS::Heat::RandomString
 
-  rackUser:
+  clusPass:
+    type: OS::Heat::RandomString
+
+  clusConfig:
     type: OS::Heat::CloudConfig
     properties:
       cloud_config:
@@ -171,6 +174,9 @@ resources:
             passwd: $6$8nlsOUQi$gUDvoEISDgxnIzvHBkHHBDa1t1sHoipPz.G5bm3dHTx.wTaNYInoLItOa52CLfrvisiajgm3b9YmDT88X2G2d1
             ssh-authorized-keys:
             - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5gfj8TCFHH7Ax8DlNA92TfAXmT0M1w0y2cECM/tBm8GMN0Vha9/L3qe8khJWAed88n2Aiap0QLZu5EPzOgjt8HKmFNAdZq/sRMi4uSiQExA6YcLXTzgDrDtoMPGekzD0k0J1vB/tm5MSTx+8J9tRYMXV/sfjhUqSRIFRhAMjOLTjR+l8rat9TMUPDctqOXss9VH8IH4HVIKRbva4hkF1gyceOmI/UL2M8plTJwPAwBfFjjG+lvL652ZrUv/501XUlqROKU/3NUQCzI7iyAJsnh23J85yqAXRwjCHLf1oMpK35awAfK0jWGwHkgIfAjcKBVMzzX8sI4C5VpPGnyehr bria4081@MQ90XMG8WL
+          - name: hacluster
+            lock_passwd: false
+            plain_text_passwd: { get_attr: [ clusPass, value ]}
 
         write_files:
           - path: /etc/sudoers.d/10-rack
@@ -192,7 +198,7 @@ resources:
       key_name: { get_resource: stackSSHKey }
       flavor: { get_param: nodeFlavor }
       config_drive: True
-      user_data: { get_resource: rackUser }
+      user_data: { get_resource: clusConfig }
       metadata:
         created_by: cn_orch_template
       networks:
@@ -215,7 +221,7 @@ resources:
       config_drive: True
       metadata:
         created_by: cn_orch_template
-      user_data: { get_resource: rackUser }
+      user_data: { get_resource: clusConfig }
       networks:
         - network: '00000000-0000-0000-0000-000000000000'
         - network: '11111111-1111-1111-1111-111111111111'
@@ -234,7 +240,7 @@ resources:
       key_name: { get_resource: stackSSHKey }
       flavor: { get_param: nodeFlavor }
       config_drive: True
-      user_data: { get_resource: rackUser }
+      user_data: { get_resource: clusConfig }
       metadata:
         created_by: cn_orch_template
       networks:
@@ -268,9 +274,19 @@ outputs:
       value: { get_attr: [nodeInstance03, networks, public] }
       description: 'Public IPs of Server Instance 03'
 
+  node02PrivateIP:
+      value:
+        list_join: ['.',  [ { get_param: netRange }, '3' ]]
+      description: 'PrivateIP of node02'
+
+
   nodePassDisplay:
     value: { get_attr: [nodePass, value ] }
     description: 'Admin Password of Server Instances'
+
+  clusPassDisplay:
+    value: { get_attr: [clusPass, value ] }
+    description: 'cluster password'
 
   stackPrivateSSHKey:
     value: { get_attr: ['stackSSHKey', 'private_key'] }

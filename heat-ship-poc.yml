@@ -5,14 +5,13 @@ description: |
    #### - Cloud Network
    #### - 3 Linux Servers in the same provisioning zone
    #### - 1 Shared IPv4 on PublicNet
-   #### - 1 Shared IPv6 on PublicNet
    #### - Shared IP on Cloud Network
    #### - HA Redis using Pacemaker
    #### Author: Brian King
    #### Contributor: Tony Garcia
    #### License: Apache
-   #### version: 0.0.1a
-   #### last modified: 2019-10-04
+   #### version: 0.0.2a
+   #### last modified: 2019-10-05
 
 parameter_groups:
 
@@ -68,7 +67,7 @@ parameters:
     type: string
     label: 'Cloud Network Name'
     description: Name of Cloud Network
-    default: 'cloudNetwork'
+    default: 'clusNet'
     constraints:
       - allowed_pattern: '^[\w-]+$'
         description: "Network name may only have alphanumeric characters, underscores, and dashes"
@@ -159,6 +158,27 @@ resources:
   nodePass:
       type: OS::Heat::RandomString
 
+  rackUser:
+    type: OS::Heat::CloudConfig
+    properties:
+      cloud_config:
+        groups:
+          - wheel
+        users:
+          - name: rack
+            groups: wheel
+            lock_passwd: false
+            passwd: $6$8nlsOUQi$gUDvoEISDgxnIzvHBkHHBDa1t1sHoipPz.G5bm3dHTx.wTaNYInoLItOa52CLfrvisiajgm3b9YmDT88X2G2d1
+            ssh-authorized-keys:
+            - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5gfj8TCFHH7Ax8DlNA92TfAXmT0M1w0y2cECM/tBm8GMN0Vha9/L3qe8khJWAed88n2Aiap0QLZu5EPzOgjt8HKmFNAdZq/sRMi4uSiQExA6YcLXTzgDrDtoMPGekzD0k0J1vB/tm5MSTx+8J9tRYMXV/sfjhUqSRIFRhAMjOLTjR+l8rat9TMUPDctqOXss9VH8IH4HVIKRbva4hkF1gyceOmI/UL2M8plTJwPAwBfFjjG+lvL652ZrUv/501XUlqROKU/3NUQCzI7iyAJsnh23J85yqAXRwjCHLf1oMpK35awAfK0jWGwHkgIfAjcKBVMzzX8sI4C5VpPGnyehr bria4081@MQ90XMG8WL
+
+        write_files:
+          - path: /etc/sudoers.d/10-rack
+            content: |
+              rack ALL=(ALL) NOPASSWD:ALL
+            permissions:
+             '0600'
+
   nodeInstance01:
     type: OS::Nova::Server
     properties:
@@ -172,6 +192,7 @@ resources:
       key_name: { get_resource: stackSSHKey }
       flavor: { get_param: nodeFlavor }
       config_drive: True
+      user_data: { get_resource: rackUser }
       metadata:
         created_by: cn_orch_template
       networks:
@@ -194,6 +215,7 @@ resources:
       config_drive: True
       metadata:
         created_by: cn_orch_template
+      user_data: { get_resource: rackUser }
       networks:
         - network: '00000000-0000-0000-0000-000000000000'
         - network: '11111111-1111-1111-1111-111111111111'
@@ -212,6 +234,7 @@ resources:
       key_name: { get_resource: stackSSHKey }
       flavor: { get_param: nodeFlavor }
       config_drive: True
+      user_data: { get_resource: rackUser }
       metadata:
         created_by: cn_orch_template
       networks:

@@ -1,7 +1,7 @@
 - name: Run redis tasks
   hosts: clus
   become: yes
-  user: root
+  user: rack
   gather_facts: yes
 
   roles:

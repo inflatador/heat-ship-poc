@@ -13,6 +13,11 @@ description: |
    #### version: 0.0.2a
    #### last modified: 2019-10-05
 
+   #### builds using localhost as the playbook
+   #### thus, there must be a separate role for
+   #### cluster master and cluster nodes
+
+
 parameter_groups:
 
 - label: Server Settings
@@ -67,7 +72,7 @@ parameters:
     type: string
     label: 'Cloud Network Name'
     description: Name of Cloud Network
-    default: 'clusNet00'
+    default: 'clusNet01'
     constraints:
       - allowed_pattern: '^[\w-]+$'
         description: "Network name may only have alphanumeric characters, underscores, and dashes"
@@ -109,7 +114,7 @@ resources:
     type: OS::Neutron::Port
     properties:
       fixed_ips: [{'subnet_id': { get_attr: [cloudNetSubnet, name] }, 'ip_address': { list_join: ['.',  [ { get_param: netRange }, '3' ]] } }]
-      name: { get_param: [netName] }
+      name: { get_param: [ netName ] }
       network: { get_attr: [cloudNet, name] }
 
   cloudNetnodeInstance03NonHAPort:
@@ -185,7 +190,7 @@ resources:
             permissions:
              '0600'
 
-  masterNodeConfig:
+  downloadAnsibleRoles:
       type: OS::Heat::SoftwareConfig
       properties:
         group: script
@@ -204,13 +209,55 @@ resources:
             params:
               ansible_source: http://catalog.rs-heat.com/ansible-roles/ansible-roles.tar.gz
 
+  setupHosts:
+    type: OS::Heat::SoftwareConfig
+    properties:
+      group: script
+      outputs:
+      - name: hosts
+      config:
+        str_replace:
+          template: |
+                     #!/bin/bash
+                     cat > /tmp/hosts << EOF
+                     $entry01
+                     $entry02
+                     $entry03
+                     EOF
+                     cat /tmp/hosts >> /etc/hosts
+          params:
+            $entry01:
+              list_join:
+                - ' '
+                - - { get_attr: [ cloudNetmasterNodeNonHAPort, fixed_ips, 0, ip_address ]}
+                - - str_replace:
+                      template: $node01
+                      params:
+                        $node: { get_param: nodeName }
+            $entry02:
+              list_join:
+                - ' '
+                - - { get_attr: [ cloudNetnodeInstance02NonHAPort, fixed_ips, 0, ip_address ]}
+                - - str_replace:
+                      template: $node02
+                      params:
+                        $node: { get_param: nodeName }
+            $entry03:
+              list_join:
+                - ' '
+                - - { get_attr: [ cloudNetnodeInstance03NonHAPort, fixed_ips, 0, ip_address ]}
+                - - str_replace:
+                      template: $node03
+                      params:
+                        $node: { get_param: nodeName }
 
-  masterNodeCloudInit:
+  clusterNodeCloudInit:
     type: OS::Heat::MultipartMime
     properties:
       parts:
       - config: { get_resource: clusConfig }
-      - config: { get_resource: masterNodeConfig }
+      - config: { get_resource: downloadAnsibleRoles }
+      - config: { get_resource: setupHosts }
 
 
   masterNode:
@@ -226,7 +273,7 @@ resources:
       key_name: { get_resource: stackSSHKey }
       flavor: { get_param: nodeFlavor }
       config_drive: True
-      user_data: { get_resource: masterNodeCloudInit }
+      user_data: { get_resource: clusterNodeCloudInit }
       metadata:
         created_by: cn_orch_template
       networks:
@@ -249,7 +296,7 @@ resources:
       config_drive: True
       metadata:
         created_by: cn_orch_template
-      user_data: { get_resource: clusConfig }
+      user_data: { get_resource: clusterNodeCloudInit }
       networks:
         - network: '00000000-0000-0000-0000-000000000000'
         - network: '11111111-1111-1111-1111-111111111111'
@@ -268,7 +315,7 @@ resources:
       key_name: { get_resource: stackSSHKey }
       flavor: { get_param: nodeFlavor }
       config_drive: True
-      user_data: { get_resource: clusConfig }
+      user_data: { get_resource: clusterNodeCloudInit }
       metadata:
         created_by: cn_orch_template
       networks:

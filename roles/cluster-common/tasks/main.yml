@@ -20,7 +20,6 @@
     content: "{{ lookup('template', 'hosts.j2') }}"
     state: present
 
-
 - name: Ensure cluster services are active and start on boot
   systemd:
     name: "{{ item }}"
@@ -28,10 +27,3 @@
     enabled: yes
   loop:
     - pcsd
-
-- name: Create the hacluster user
-  user:
-    name: "hacluster"
-    password: "5BB3E5A8-9F52-4FD2-AC05-CA04D8BE2764"
-    update_password: on_create
-    shell: "/bin/false"

@@ -1,0 +1,6 @@
+{% for item in ansible_play_batch %}
+{% set short_name = item.split('.') %}
+{{ hostvars[item].ansible_eth2.ipv4.address }}       {{ item }}      {{ short_name[0] }}
+{% endfor %}
+
+{{ ansible_eth2.ipv4.address.split('.')[0:3] | join('.') }}.1          clusterIP          

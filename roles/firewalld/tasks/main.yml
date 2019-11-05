@@ -20,3 +20,17 @@
     service: high-availability
     state: enabled
     permanent: yes
+
+- name: Allow other required pacemaker ports
+  firewalld:
+    port: 3121/tcp
+    permanent: true
+    state: disabled
+    zone: trusted
+
+- name: Allow other required pacemaker port
+  firewalld:
+    port: 2224/tcp
+    permanent: true
+    state: disabled
+    zone: trusted

@@ -172,6 +172,7 @@ resources:
       cloud_config:
         groups:
           - wheel
+          - haclient
         users:
           - name: rack
             groups: wheel
@@ -180,6 +181,7 @@ resources:
             ssh-authorized-keys:
             - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC5gfj8TCFHH7Ax8DlNA92TfAXmT0M1w0y2cECM/tBm8GMN0Vha9/L3qe8khJWAed88n2Aiap0QLZu5EPzOgjt8HKmFNAdZq/sRMi4uSiQExA6YcLXTzgDrDtoMPGekzD0k0J1vB/tm5MSTx+8J9tRYMXV/sfjhUqSRIFRhAMjOLTjR+l8rat9TMUPDctqOXss9VH8IH4HVIKRbva4hkF1gyceOmI/UL2M8plTJwPAwBfFjjG+lvL652ZrUv/501XUlqROKU/3NUQCzI7iyAJsnh23J85yqAXRwjCHLf1oMpK35awAfK0jWGwHkgIfAjcKBVMzzX8sI4C5VpPGnyehr bria4081@MQ90XMG8WL
           - name: hacluster
+            groups: haclient
             lock_passwd: false
             plain_text_passwd: { get_attr: [ clusPass, value ]}
 

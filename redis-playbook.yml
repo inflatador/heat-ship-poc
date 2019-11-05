@@ -6,5 +6,5 @@
 
   roles:
     - firewalld
-    - cluster
+    - cluster-common
     - redis

@@ -14,11 +14,11 @@
     name: python2-pip
     state: latest
 
-- name: Add all hosts to respective /etc/hosts files
-  blockinfile:
-    dest: /etc/hosts
-    content: "{{ lookup('template', 'hosts.j2') }}"
-    state: present
+# - name: Add all hosts to respective /etc/hosts files
+#   blockinfile:
+#     dest: /etc/hosts
+#     content: "{{ lookup('template', 'hosts.j2') }}"
+#     state: present
 
 - name: Ensure cluster services are active and start on boot
   systemd:

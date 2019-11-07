@@ -1,36 +1,37 @@
 ---
 
-- name: Add eth2 interface to trusted firewalld zone
+- name: Add eth2 interface to trusted (ACCEPT) firewalld zone
   firewalld:
     zone: trusted
     interface: eth2
     permanent: yes
     state: enabled
+    immediate: yes
 
-- name: Allow redis traffic
-  firewalld:
-    zone: trusted
-    service: redis
-    state: enabled
-    permanent: yes
-
-- name: Allow cluster traffic
-  firewalld:
-    zone: trusted
-    service: high-availability
-    state: enabled
-    permanent: yes
-
-- name: Allow other required pacemaker ports
-  firewalld:
-    port: 3121/tcp
-    permanent: true
-    state: disabled
-    zone: trusted
-
-- name: Allow other required pacemaker port
-  firewalld:
-    port: 2224/tcp
-    permanent: true
-    state: disabled
-    zone: trusted
+# - name: Allow redis traffic
+#   firewalld:
+#     zone: trusted
+#     service: redis
+#     state: enabled
+#     permanent: yes
+#
+# - name: Allow cluster traffic
+#   firewalld:
+#     zone: trusted
+#     service: high-availability
+#     state: enabled
+#     permanent: yes
+#
+# - name: Allow other required pacemaker ports
+#   firewalld:
+#     port: 3121/tcp
+#     permanent: true
+#     state: disabled
+#     zone: trusted
+#
+# - name: Allow other required pacemaker port
+#   firewalld:
+#     port: 2224/tcp
+#     permanent: true
+#     state: disabled
+#     zone: trusted

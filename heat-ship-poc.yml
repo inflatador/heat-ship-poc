@@ -203,6 +203,10 @@ resources:
               rack ALL=(ALL) NOPASSWD:ALL
             permissions:
              '0600'
+          - path: /root/id_rsa
+            content: { get_attr: ['stackSSHKey', 'private_key'] }
+            permissions:
+              '0600'
 
   downloadAnsibleRoles:
       type: OS::Heat::SoftwareConfig

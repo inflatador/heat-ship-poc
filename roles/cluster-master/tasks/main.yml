@@ -27,3 +27,11 @@
 #     enabled: yes
 #   loop:
 #     - pcsd
+
+- name: register cluster node names
+  shell: 'grep -v HEAT /tmp/hosts | cut -d " " -f2'
+  register: nodeNames
+
+- name: register cluster password 
+  shell: 'grep -v HEAT /tmp/hosts | cut -d " " -f2'
+  register: nodeNames

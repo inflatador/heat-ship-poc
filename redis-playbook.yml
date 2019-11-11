@@ -1,5 +1,5 @@
 - name: Run redis tasks
-  hosts: clus
+  hosts: clusord
   become: yes
   user: rack
   gather_facts: yes
@@ -8,3 +8,12 @@
     - firewalld
     - cluster-common
     - redis
+
+- name: Run cluster master tasks
+  hosts: ordclusNode01
+  become: yes
+  user: rack
+  gather_facts: yes
+
+  roles:
+    - cluster-master

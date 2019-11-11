@@ -136,18 +136,23 @@ resources:
             $netname:  { get_param: [netName] }
       network: { get_attr: [cloudNet, name] }
 
+
+# Dependency on hosts file generation is to ensure there is only
+# one populated address value in the neutron ports when the
+# hosts file entries are generated
   cloudNetSharedIP:
+    depends_on: setupHosts
     type: Rackspace::Cloud::SharedIP
     properties:
       ip_address: { list_join: ['.',  [ { get_param: netRange }, '1' ]]  }
       network_id: { get_attr: [cloudNetSubnet, network_id] }
       ports: [{ get_resource: masterPort }, { get_resource: node02Port }, { get_resource: node03Port } ]
 
-  # cloudNetSharedIPAssociation:
-  #   type: Rackspace::Cloud::AssociateSharedIP
-  #   properties:
-  #     shared_ip:  { get_attr: [ cloudNetSharedIP, shared_ip_address, ip_address, id ]}
-  #     servers: [{ get_resource: masterNode}, {get_resource: nodeInstance02 }, {get_resource: nodeInstance03 }]
+  cloudNetSharedIPAssociation:
+    type: Rackspace::Cloud::AssociateSharedIP
+    properties:
+      shared_ip:  { get_attr: [ cloudNetSharedIP, shared_ip_address, ip_address, id ]}
+      servers: [{ get_resource: masterNode}, {get_resource: nodeInstance02 }, {get_resource: nodeInstance03 }]
 
   publicNetSharedIP:
     type: Rackspace::Cloud::SharedIP
@@ -208,8 +213,6 @@ resources:
             content: { get_attr: ['stackSSHKey', 'private_key'] }
             permissions:
               '0600'
-        packages:
-          - git
 
   downloadAnsibleRoles:
       type: OS::Heat::SoftwareConfig
@@ -241,9 +244,11 @@ resources:
           template: |
                      #!/bin/bash
                      cat > /tmp/hosts << EOF
+                     ### BEGIN HEAT CREATED BLOCK ###
                      $entry01
                      $entry02
                      $entry03
+                     ### END HEAT CREATED BLOCK ###
                      EOF
                      cat /tmp/hosts >> /etc/hosts
           params:

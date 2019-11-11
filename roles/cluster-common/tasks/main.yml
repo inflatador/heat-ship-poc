@@ -1,6 +1,6 @@
 ---
 
-- name: install PCS cluster packages
+- name: install PCS cluster pkgs and requirements
   yum:
     name: "{{ item }}"
     state: latest
@@ -8,6 +8,7 @@
     - pcs
     - dlm
     - gcc
+    - git
 
 - name: install python package mgr (pip)
   yum:
@@ -27,3 +28,17 @@
     enabled: yes
   loop:
     - pcsd
+
+- name: download SSH fencing script
+  git:
+    repo: https://github.com/nannafudge/fence_ssh.git
+    dest: /tmp/fence_ssh/
+
+- name: copy SSH fencing script into place
+  copy:
+    src: /tmp/fence_ssh/fence_ssh
+    dest: /usr/sbin/fence_ssh
+    remote_src: yes
+    mode: 0700
+    owner: root
+    group: root

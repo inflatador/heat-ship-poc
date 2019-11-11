@@ -1,29 +1,29 @@
 ---
 
-- name: install PCS cluster packages
-  yum:
-    name: "{{ item }}"
-    state: latest
-  loop:
-    - pcs
-    - dlm
-    - gcc
-
-- name: install python package mgr (pip)
-  yum:
-    name: python2-pip
-    state: latest
-
-# - name: Add all hosts to respective /etc/hosts files
-#   blockinfile:
-#     dest: /etc/hosts
-#     content: "{{ lookup('template', 'hosts.j2') }}"
-#     state: present
-
-- name: Ensure cluster services are active and start on boot
-  systemd:
-    name: "{{ item }}"
-    state: started
-    enabled: yes
-  loop:
-    - pcsd
+# - name: install PCS cluster packages
+#   yum:
+#     name: "{{ item }}"
+#     state: latest
+#   loop:
+#     - pcs
+#     - dlm
+#     - gcc
+#
+# - name: install python package mgr (pip)
+#   yum:
+#     name: python2-pip
+#     state: latest
+#
+# # - name: Add all hosts to respective /etc/hosts files
+# #   blockinfile:
+# #     dest: /etc/hosts
+# #     content: "{{ lookup('template', 'hosts.j2') }}"
+# #     state: present
+#
+# - name: Ensure cluster services are active and start on boot
+#   systemd:
+#     name: "{{ item }}"
+#     state: started
+#     enabled: yes
+#   loop:
+#     - pcsd

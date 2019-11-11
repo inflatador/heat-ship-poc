@@ -143,11 +143,11 @@ resources:
       network_id: { get_attr: [cloudNetSubnet, network_id] }
       ports: [{ get_resource: masterPort }, { get_resource: node02Port }, { get_resource: node03Port } ]
 
-  cloudNetSharedIPAssociation:
-    type: Rackspace::Cloud::AssociateSharedIP
-    properties:
-      shared_ip:  { get_attr: [ cloudNetSharedIP, shared_ip_address, ip_address, id ]}
-      servers: [{ get_resource: masterNode}, {get_resource: nodeInstance02 }, {get_resource: nodeInstance03 }]
+  # cloudNetSharedIPAssociation:
+  #   type: Rackspace::Cloud::AssociateSharedIP
+  #   properties:
+  #     shared_ip:  { get_attr: [ cloudNetSharedIP, shared_ip_address, ip_address, id ]}
+  #     servers: [{ get_resource: masterNode}, {get_resource: nodeInstance02 }, {get_resource: nodeInstance03 }]
 
   publicNetSharedIP:
     type: Rackspace::Cloud::SharedIP
@@ -203,10 +203,13 @@ resources:
               rack ALL=(ALL) NOPASSWD:ALL
             permissions:
              '0600'
+    # This gives all cluster nodes root access to one another for fencing
           - path: /root/id_rsa
             content: { get_attr: ['stackSSHKey', 'private_key'] }
             permissions:
               '0600'
+        packages:
+          - git
 
   downloadAnsibleRoles:
       type: OS::Heat::SoftwareConfig
@@ -362,7 +365,6 @@ outputs:
       value:
         list_join: ['.',  [ { get_param: netRange }, '3' ]]
       description: 'PrivateIP of node02'
-
 
   nodePassDisplay:
     value: { get_attr: [nodePass, value ] }
